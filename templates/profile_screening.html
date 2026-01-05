@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Screening - TalentInsightAI</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        accent: {
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 min-h-screen">
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full z-50 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 sm:h-20">
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center">
+                        <i class="fas fa-brain text-2xl sm:text-4xl bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent"></i>
+                        <span class="ml-2 sm:ml-3 text-lg sm:text-2xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">TalentInsightAI</span>
+                    </a>
+                </div>
+                
+                <div class="flex items-center space-x-2 sm:space-x-6">
+                    <a href="/" class="flex items-center text-gray-700 hover:text-primary-600 transition font-medium text-sm sm:text-base">
+                        <i class="fas fa-home mr-1 sm:mr-2"></i>
+                        <span class="hidden sm:inline">Home</span>
+                    </a>
+                    <a href="{{ url_for('index') }}" class="flex items-center text-gray-700 hover:text-primary-600 transition font-medium text-sm sm:text-base">
+                        <i class="fas fa-star mr-1 sm:mr-2"></i>
+                        <span class="hidden sm:inline">Top Profiles</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="pt-20 sm:pt-28 pb-16 px-4">
+        <div class="max-w-6xl mx-auto">
+            
+            <!-- Header -->
+            <div class="text-center mb-8 sm:mb-12">
+                <h1 class="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 sm:mb-4">
+                    <i class="fas fa-user-check text-primary-600 mr-2 sm:mr-3"></i>Profile Screening
+                </h1>
+                <p class="text-base sm:text-xl text-gray-600">AI-Powered Resume Analysis & Insights</p>
+            </div>
+            
+            <!-- Analysis Card -->
+            <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 md:p-12 mb-8">
+                <div class="mb-6 sm:mb-8">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 sm:mb-4">Resume Analysis</h2>
+                    <p class="text-sm sm:text-base text-gray-600">Comprehensive AI analysis showing key entities and information extracted from the resume</p>
+                </div>
+                
+                <!-- Visualization Container -->
+                <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 sm:p-8 mb-6 overflow-x-auto">
+                    <div class="flex justify-center items-center min-h-[300px] sm:min-h-[400px]">
+                        {% if error %}
+                            <div class="text-center">
+                                <i class="fas fa-exclamation-circle text-4xl sm:text-6xl text-red-500 mb-4"></i>
+                                <p class="text-red-600 text-base sm:text-lg font-semibold mb-2">Error Analyzing Resume</p>
+                                <p class="text-sm sm:text-base text-gray-600">{{ error }}</p>
+                                <a href="/" class="inline-block mt-6 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-lg font-semibold hover:shadow-lg transition text-sm sm:text-base">
+                                    <i class="fas fa-arrow-left mr-2"></i>Go Back to Dashboard
+                                </a>
+                            </div>
+                        {% elif image_path %}
+                            <div class="w-full overflow-x-auto">
+                                <img id="resumeVisualization" 
+                                     src="{{ url_for('static', filename='images/visualization.png') }}?t={{ range(1, 10000) | random }}" 
+                                     alt="Resume Analysis Visualization" 
+                                     class="max-w-full sm:max-w-full h-auto rounded-lg shadow-lg mx-auto min-w-[600px] sm:min-w-0"
+                                     onerror="showNoVisualization()">
+                            </div>
+                        {% else %}
+                            <div class="text-center">
+                                <i class="fas fa-search text-4xl sm:text-6xl text-blue-400 mb-4"></i>
+                                <p class="text-gray-600 text-base sm:text-lg mb-2">No resume selected for analysis</p>
+                                <p class="text-gray-500 text-xs sm:text-sm mb-6">Search for candidates and click "Analyze" to view resume analysis</p>
+                                <a href="/" class="inline-block px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-lg font-semibold hover:shadow-lg transition">
+                                    <i class="fas fa-arrow-left mr-2"></i>Go Back to Dashboard
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Entity Types Legend -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 sm:mt-8">
+                    <div class="bg-blue-50 border-l-4 border-blue-600 p-3 sm:p-4 rounded-lg">
+                        <div class="flex items-center mb-2 sm:mb-3">
+                            <i class="fas fa-user text-xl sm:text-2xl text-blue-600 mr-2 sm:mr-3"></i>
+                            <div>
+                                <div class="font-semibold text-gray-900 text-sm sm:text-base">PERSON</div>
+                                <div class="text-xs sm:text-sm text-gray-600">Names and identities</div>
+                            </div>
+                        </div>
+                        {% if entities and entities.PERSON %}
+                        <div class="mt-2 sm:mt-3 space-y-1">
+                            {% for person in entities.PERSON %}
+                            <div class="bg-blue-100 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm text-blue-800 inline-block mr-1 mb-1">
+                                <i class="fas fa-id-badge mr-1"></i>{{ person }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="mt-2 text-xs text-gray-500 italic">No persons detected</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="bg-purple-50 border-l-4 border-purple-600 p-3 sm:p-4 rounded-lg">
+                        <div class="flex items-center mb-2 sm:mb-3">
+                            <i class="fas fa-building text-xl sm:text-2xl text-purple-600 mr-2 sm:mr-3"></i>
+                            <div>
+                                <div class="font-semibold text-gray-900 text-sm sm:text-base">ORG</div>
+                                <div class="text-xs sm:text-sm text-gray-600">Organizations & companies</div>
+                            </div>
+                        </div>
+                        {% if entities and entities.ORG %}
+                        <div class="mt-2 sm:mt-3 space-y-1">
+                            {% for org in entities.ORG %}
+                            <div class="bg-purple-100 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm text-purple-800 inline-block mr-1 mb-1">
+                                <i class="fas fa-briefcase mr-1"></i>{{ org }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="mt-2 text-xs text-gray-500 italic">No organizations detected</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="bg-green-50 border-l-4 border-green-600 p-3 sm:p-4 rounded-lg">
+                        <div class="flex items-center mb-2 sm:mb-3">
+                            <i class="fas fa-calendar text-xl sm:text-2xl text-green-600 mr-2 sm:mr-3"></i>
+                            <div>
+                                <div class="font-semibold text-gray-900 text-sm sm:text-base">DATE</div>
+                                <div class="text-xs sm:text-sm text-gray-600">Dates and timelines</div>
+                            </div>
+                        </div>
+                        {% if entities and entities.DATE %}
+                        <div class="mt-2 sm:mt-3 space-y-1">
+                            {% for date in entities.DATE %}
+                            <div class="bg-green-100 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm text-green-800 inline-block mr-1 mb-1">
+                                <i class="fas fa-clock mr-1"></i>{{ date }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="mt-2 text-xs text-gray-500 italic">No dates detected</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="bg-orange-50 border-l-4 border-orange-600 p-3 sm:p-4 rounded-lg">
+                        <div class="flex items-center mb-2 sm:mb-3">
+                            <i class="fas fa-map-marker-alt text-xl sm:text-2xl text-orange-600 mr-2 sm:mr-3"></i>
+                            <div>
+                                <div class="font-semibold text-gray-900 text-sm sm:text-base">GPE</div>
+                                <div class="text-xs sm:text-sm text-gray-600">Locations & places</div>
+                            </div>
+                        </div>
+                        {% if entities and entities.GPE %}
+                        <div class="mt-2 sm:mt-3 space-y-1">
+                            {% for location in entities.GPE %}
+                            <div class="bg-orange-100 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm text-orange-800 inline-block mr-1 mb-1">
+                                <i class="fas fa-location-dot mr-1"></i>{{ location }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="mt-2 text-xs text-gray-500 italic">No locations detected</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                <a href="/" class="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition transform hover:scale-105">
+                    <div class="flex items-center justify-center mb-3 sm:mb-4">
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-search text-2xl sm:text-3xl text-white"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-center text-gray-900 mb-2">Search More</h3>
+                    <p class="text-center text-gray-600 text-sm sm:text-base">Find other candidates with specific skills</p>
+                </a>
+                
+                <a href="{{ url_for('index') }}" class="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition transform hover:scale-105">
+                    <div class="flex items-center justify-center mb-3 sm:mb-4">
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-star text-2xl sm:text-3xl text-white"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-center text-gray-900 mb-2">Top Profiles</h3>
+                    <p class="text-center text-gray-600 text-sm sm:text-base">View AI-recommended candidates</p>
+                </a>
+                
+                <a href="/#upload" class="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-2xl transition transform hover:scale-105">
+                    <div class="flex items-center justify-center mb-3 sm:mb-4">
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-green-600 to-teal-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-upload text-2xl sm:text-3xl text-white"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-center text-gray-900 mb-2">Upload More</h3>
+                    <p class="text-center text-gray-600 text-sm sm:text-base">Add more resumes to analyze</p>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-6 sm:py-8 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400 text-sm sm:text-base">© 2026 TalentInsightAI. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Load visualization image dynamically
+        function loadResumeVisualization() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pdfName = urlParams.get('pdf');
+            const imgElement = document.getElementById('resumeVisualization');
+            
+            if (pdfName && imgElement) {
+                // Add timestamp to prevent caching
+                imgElement.src = '/static/images/visualization.png?t=' + new Date().getTime();
+            }
+        }
+        
+        function showNoVisualization() {
+            const container = document.querySelector('.min-h-\\[400px\\]');
+            if (container) {
+                container.innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-chart-bar text-6xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-700 text-lg font-semibold mb-2">Analysis Complete</p>
+                        <p class="text-gray-600 mb-2">Resume processed successfully</p>
+                        <p class="text-sm text-gray-500">(Visual chart generation in progress)</p>
+                    </div>
+                `;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadResumeVisualization);
+    </script>
+</body>
+</html>

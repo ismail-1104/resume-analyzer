@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalentInsightAI - AI-Powered Resume Analyzer</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js for interactions -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        accent: {
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(-45deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .hover-lift {
+            transition: all 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50" x-data="{ mobileMenuOpen: false }">
+    
+    <!-- Modern Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full z-50 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-brain text-4xl bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent"></i>
+                        <span class="ml-3 text-2xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">TalentInsightAI</span>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="text-gray-700 hover:text-primary-600 transition font-medium">Home</a>
+                    <a href="{{ url_for('profile_screening') }}" class="text-gray-700 hover:text-primary-600 transition font-medium">Profile Screening</a>
+                    <a href="{{ url_for('index') }}" class="text-gray-700 hover:text-primary-600 transition font-medium">Top Profiles</a>
+                    <a href="#upload" class="px-6 py-2.5 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-lg font-medium hover:shadow-lg transition transform hover:scale-105">
+                        <i class="fas fa-upload mr-2"></i>Upload
+                    </a>
+                </div>
+                
+                <div class="md:hidden flex items-center">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-700 hover:text-primary-600 focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div x-show="mobileMenuOpen" x-transition class="md:hidden bg-white border-t">
+            <div class="px-4 pt-2 pb-4 space-y-2">
+                <a href="#home" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition">Home</a>
+                <a href="{{ url_for('profile_screening') }}" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition">Profile Screening</a>
+                <a href="{{ url_for('index') }}" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition">Top Profiles</a>
+                <a href="#upload" class="block px-4 py-3 rounded-lg bg-gradient-to-r from-primary-600 to-accent-600 text-white text-center font-medium">
+                    <i class="fas fa-upload mr-2"></i>Upload
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section id="home" class="gradient-bg pt-32 pb-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16 fade-in">
+                <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+                    Discover the Best Talent<br>
+                    <span class="text-white opacity-90">for Your Organization</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-white opacity-90 mb-8 max-w-3xl mx-auto">
+                    AI-powered resume analysis and intelligent candidate matching powered by advanced NLP
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-12">
+                    <div class="glass-effect rounded-xl p-6 hover-lift">
+                        <div class="text-4xl font-bold text-white mb-2">10K+</div>
+                        <div class="text-white opacity-80">Resumes Analyzed</div>
+                    </div>
+                    <div class="glass-effect rounded-xl p-6 hover-lift">
+                        <div class="text-4xl font-bold text-white mb-2">98%</div>
+                        <div class="text-white opacity-80">Match Accuracy</div>
+                    </div>
+                    <div class="glass-effect rounded-xl p-6 hover-lift">
+                        <div class="text-4xl font-bold text-white mb-2">50+</div>
+                        <div class="text-white opacity-80">Companies Trust Us</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Search Section -->
+            <div class="glass-effect rounded-2xl p-8 md:p-10 max-w-5xl mx-auto fade-in">
+                <h2 class="text-3xl font-bold text-white mb-8 text-center">
+                    <i class="fas fa-search mr-3"></i>Search for Top Talent
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <label class="block text-gray-700 font-semibold mb-3">
+                            <i class="fas fa-code text-primary-600 mr-2"></i>Search by Skills
+                        </label>
+                        <input 
+                            type="text" 
+                            id="searchSkillInput" 
+                            placeholder="e.g., Python, React, Machine Learning, AWS"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none transition"
+                        >
+                        <p class="text-sm text-gray-500 mt-2">Enter technical skills, programming languages, or tools</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <label class="block text-gray-700 font-semibold mb-3">
+                            <i class="fas fa-tag text-accent-600 mr-2"></i>Search by Keywords
+                        </label>
+                        <input 
+                            type="text" 
+                            id="keywordInput"
+                            placeholder="e.g., Google, MBA, Dubai, Senior Developer"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-accent-500 focus:outline-none transition"
+                        >
+                        <p class="text-sm text-gray-500 mt-2">Companies, locations, job titles, or qualifications</p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button 
+                        onclick="searchSkill()" 
+                        class="px-12 py-4 bg-white text-primary-600 rounded-xl font-bold text-lg hover:shadow-2xl transition transform hover:scale-105 inline-flex items-center"
+                    >
+                        <i class="fas fa-search mr-3 text-xl"></i>
+                        <span>Search Candidates</span>
+                    </button>
+                </div>
+                
+                <div id="searchResultContainer" class="mt-8 hidden">
+                    <div id="searchResult" class="space-y-3 max-h-96 overflow-y-auto"></div>
+                </div>
+                
+                <div id="searchLoading" class="mt-8 text-center hidden">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+                    <p class="text-white mt-4">Searching resumes...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Upload Section -->
+    <section id="upload" class="py-20 px-4 bg-gradient-to-br from-gray-50 to-gray-100">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    <i class="fas fa-cloud-upload-alt text-primary-600 mr-3"></i>Upload Resumes
+                </h2>
+                <p class="text-xl text-gray-600">Bulk upload PDF resumes for AI-powered analysis</p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-2xl p-8 md:p-12 hover-lift">
+                <form id="bulkUploadForm" enctype="multipart/form-data" onsubmit="uploadBulkFiles(event)">
+                    <div class="border-4 border-dashed border-primary-300 rounded-xl p-12 text-center hover:border-primary-500 transition cursor-pointer" onclick="document.getElementById('pdfFiles').click()">
+                        <i class="fas fa-file-pdf text-6xl text-primary-400 mb-4"></i>
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-3">Drop PDF files here or click to browse</h3>
+                        <p class="text-gray-500 mb-6">Support for multiple PDF files. Maximum 50MB per file.</p>
+                        <input 
+                            type="file" 
+                            name="pdfFiles" 
+                            id="pdfFiles" 
+                            accept=".pdf" 
+                            multiple 
+                            class="hidden"
+                            onchange="handleFileSelect(event)"
+                        >
+                        <span class="inline-block px-8 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-lg font-semibold hover:shadow-lg transition">
+                            Select PDF Files
+                        </span>
+                    </div>
+                    
+                    <div id="selectedFiles" class="mt-6 hidden">
+                        <h4 class="font-semibold text-gray-700 mb-3">Selected Files:</h4>
+                        <div id="fileList" class="space-y-2 max-h-48 overflow-y-auto"></div>
+                    </div>
+                    
+                    <div id="uploadProgress" class="mt-6 hidden">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Uploading...</span>
+                            <span id="progressPercent" class="text-sm font-medium text-primary-600">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div id="progressBar" class="bg-gradient-to-r from-primary-600 to-accent-600 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        type="submit" 
+                        id="uploadBtn"
+                        class="w-full mt-8 px-8 py-4 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <i class="fas fa-upload mr-3"></i>Upload and Analyze Resumes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="py-20 px-4 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Powerful Features</h2>
+                <p class="text-xl text-gray-600">Everything you need for intelligent recruitment</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 hover-lift border border-blue-100">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-brain text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">AI-Powered Analysis</h3>
+                    <p class="text-gray-600">Advanced NLP algorithms extract key information from resumes automatically</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 hover-lift border border-purple-100">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-search-plus text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Smart Skill Matching</h3>
+                    <p class="text-gray-600">Find candidates with specific skills instantly across thousands of resumes</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-green-50 to-teal-50 rounded-2xl p-8 hover-lift border border-green-100">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-600 to-teal-600 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-chart-line text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Visual Analytics</h3>
+                    <p class="text-gray-600">Comprehensive visualizations and insights about candidate profiles</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-8 hover-lift border border-orange-100">
+                    <div class="w-16 h-16 bg-gradient-to-r from-orange-600 to-red-600 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-users text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Bulk Processing</h3>
+                    <p class="text-gray-600">Upload and analyze multiple resumes simultaneously for efficiency</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl p-8 hover-lift border border-cyan-100">
+                    <div class="w-16 h-16 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-star text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Top Recommendations</h3>
+                    <p class="text-gray-600">Get AI-recommended top 5 candidates based on job requirements</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-8 hover-lift border border-yellow-100">
+                    <div class="w-16 h-16 bg-gradient-to-r from-yellow-600 to-orange-600 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-shield-alt text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Secure & Private</h3>
+                    <p class="text-gray-600">Enterprise-grade security to protect sensitive candidate information</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center mb-6">
+                <i class="fas fa-brain text-4xl text-primary-400"></i>
+                <span class="ml-3 text-3xl font-bold">TalentInsightAI</span>
+            </div>
+            <p class="text-gray-400 mb-6">AI-Powered Resume Analysis & Talent Discovery Platform</p>
+            <div class="flex justify-center space-x-6 mb-6">
+                <a href="#" class="text-gray-400 hover:text-primary-400 transition"><i class="fab fa-linkedin text-2xl"></i></a>
+                <a href="#" class="text-gray-400 hover:text-primary-400 transition"><i class="fab fa-twitter text-2xl"></i></a>
+                <a href="#" class="text-gray-400 hover:text-primary-400 transition"><i class="fab fa-github text-2xl"></i></a>
+            </div>
+            <p class="text-gray-500 text-sm">© 2026 TalentInsightAI. All rights reserved. | Built with Modern Tech Stack</p>
+        </div>
+    </footer>
+    
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-8 right-8 transform translate-y-32 transition-transform duration-300 z-50">
+        <div class="bg-white rounded-xl shadow-2xl p-6 flex items-center space-x-4 max-w-md">
+            <div id="toastIcon" class="flex-shrink-0"></div>
+            <div id="toastMessage" class="flex-1 font-medium text-gray-800"></div>
+        </div>
+    </div>
+    
+    <script>
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            const icons = {
+                success: '<i class="fas fa-check-circle text-3xl text-green-500"></i>',
+                error: '<i class="fas fa-exclamation-circle text-3xl text-red-500"></i>',
+                info: '<i class="fas fa-info-circle text-3xl text-blue-500"></i>',
+                warning: '<i class="fas fa-exclamation-triangle text-3xl text-yellow-500"></i>'
+            };
+            
+            toastIcon.innerHTML = icons[type] || icons.info;
+            toastMessage.textContent = message;
+            toast.classList.remove('translate-y-32');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-32');
+            }, 4000);
+        }
+        
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            const fileList = document.getElementById('fileList');
+            const selectedFiles = document.getElementById('selectedFiles');
+            
+            if (files.length > 0) {
+                selectedFiles.classList.remove('hidden');
+                fileList.innerHTML = '';
+                
+                Array.from(files).forEach((file, index) => {
+                    const fileDiv = document.createElement('div');
+                    fileDiv.className = 'flex items-center justify-between bg-gray-50 p-3 rounded-lg';
+                    fileDiv.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-file-pdf text-red-500 text-xl"></i>
+                            <span class="text-sm text-gray-700 font-medium">${file.name}</span>
+                        </div>
+                        <span class="text-sm text-gray-500">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                    `;
+                    fileList.appendChild(fileDiv);
+                });
+                
+                showToast(`${files.length} file(s) selected`, 'info');
+            }
+        }
+        
+        async function uploadBulkFiles(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('bulkUploadForm');
+            const fileInput = document.getElementById('pdfFiles');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const uploadProgress = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showToast('Please select at least one PDF file', 'warning');
+                return;
+            }
+            
+            const formData = new FormData(form);
+            
+            uploadProgress.classList.remove('hidden');
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i>Uploading...';
+            
+            try {
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressBar.style.width = percentComplete + '%';
+                        progressPercent.textContent = Math.round(percentComplete) + '%';
+                    }
+                });
+                
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200) {
+                        showToast('Resumes uploaded successfully!', 'success');
+                        form.reset();
+                        document.getElementById('selectedFiles').classList.add('hidden');
+                        setTimeout(() => {
+                            uploadProgress.classList.add('hidden');
+                            progressBar.style.width = '0%';
+                            progressPercent.textContent = '0%';
+                        }, 1000);
+                    } else {
+                        showToast('Upload failed. Please try again.', 'error');
+                    }
+                    
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = '<i class="fas fa-upload mr-3"></i>Upload and Analyze Resumes';
+                });
+                
+                xhr.addEventListener('error', () => {
+                    showToast('Upload failed. Please check your connection.', 'error');
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = '<i class="fas fa-upload mr-3"></i>Upload and Analyze Resumes';
+                });
+                
+                xhr.open('POST', '{{ url_for("handle_bulk_pdf_upload") }}');
+                xhr.send(formData);
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                showToast('An error occurred during upload', 'error');
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = '<i class="fas fa-upload mr-3"></i>Upload and Analyze Resumes';
+            }
+        }
+        
+        async function searchSkill() {
+            const searchInput = document.getElementById('searchSkillInput');
+            const searchSkill = searchInput.value.trim();
+            
+            if (!searchSkill) {
+                showToast('Please enter a skill to search', 'warning');
+                return;
+            }
+            
+            const searchResultContainer = document.getElementById('searchResultContainer');
+            const searchResult = document.getElementById('searchResult');
+            const searchLoading = document.getElementById('searchLoading');
+            
+            searchResultContainer.classList.add('hidden');
+            searchLoading.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('{{ url_for("search_skill") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ searchSkill: searchSkill })
+                });
+                
+                const data = await response.json();
+                searchLoading.classList.add('hidden');
+                
+                if (data.html) {
+                    searchResult.innerHTML = data.html;
+                    searchResultContainer.classList.remove('hidden');
+                    showToast(`Found candidates with "${searchSkill}"`, 'success');
+                } else {
+                    searchResult.innerHTML = '<p class="text-white text-center py-4">No results found</p>';
+                    searchResultContainer.classList.remove('hidden');
+                    showToast('No matching candidates found', 'info');
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                searchLoading.classList.add('hidden');
+                showToast('Search failed. Please try again.', 'error');
+            }
+        }
+        
+        function analysePDF(pdfName) {
+            window.location.href = `/analyse_pdf/${pdfName}`;
+        }
+        
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
