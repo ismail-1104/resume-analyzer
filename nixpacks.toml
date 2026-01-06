@@ -1,10 +1,11 @@
 [phases.setup]
-nixPkgs = ["python311", "python311Packages.pip"]
+nixPkgs = ["python311", "python311Packages.pip", "python311Packages.setuptools"]
 
 [phases.install]
 cmds = [
-  "python3.11 -m pip install -r requirements.txt",
-  "python3.11 -m spacy download en_core_web_sm"
+  "python311 -m ensurepip",
+  "python311 -m pip install --no-cache-dir -r requirements.txt",
+  "python311 -m spacy download en_core_web_sm"
 ]
 
 [start]
