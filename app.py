@@ -8,6 +8,18 @@ from my_analysis import visualize_resume_from_pdf, extract_entities_from_resume
 
 app = Flask(__name__)
 
+# Load pickle files at module level (works with both flask run and gunicorn)
+try:
+    data_dict = pickle.load(open('data_dict.pkl', 'rb'))
+    data = pd.DataFrame(data_dict)
+    similarity = pickle.load(open('similarity.pkl', 'rb'))
+    print(f"✅ Loaded {len(data)} resumes from pickle files")
+    print(f"✅ Categories available: {sorted(data['Category'].unique())}")
+except Exception as e:
+    print(f"⚠️ Error loading pickle files: {str(e)}")
+    data = pd.DataFrame()
+    similarity = None
+
 
 # Mock data (replace with actual data handling)
 candidates = [
@@ -270,10 +282,8 @@ def index():
 
 
 if __name__ == '__main__':
-        app.config['UPLOAD_FOLDER'] = 'uploads'
-        data_dict = pickle.load(open('data_dict.pkl', 'rb'))
-        data = pd.DataFrame(data_dict)
-        similarity = pickle.load(open('similarity.pkl', 'rb'))
+    app.config['UPLOAD_FOLDER'] = 'uploads'
+    app.run(debug=True)
         
         app.run(debug=True)
 
